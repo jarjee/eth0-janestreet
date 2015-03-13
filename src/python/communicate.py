@@ -1,7 +1,7 @@
 import json
 
 __hasConnected = False;
-__team_name = "Carbon 14"
+__team_name = "CARBONFOURTEEN"
 
 def connectionCheck():
     if (! __hasConnected):
@@ -9,7 +9,7 @@ def connectionCheck():
         exit(1)
 
 def connect():
-    #Send {"type": "hello", "team": "Carbon 14"}
+    #Send {"type": "hello", "team": "CARBONFOURTEEN"}
     __hasConnected = True;
     pass
 
