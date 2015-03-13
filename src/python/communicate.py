@@ -2,6 +2,7 @@ import json
 
 __hasConnected = False;
 __team_name = "CARBONFOURTEEN"
+__exchange_ip = "10.0.131.184"
 
 def connectionCheck():
     if (! __hasConnected):
