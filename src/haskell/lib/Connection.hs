@@ -1,4 +1,5 @@
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings          #-}
 
 module Connection where
 
@@ -7,10 +8,12 @@ import Control.Monad.State
 import Data.Aeson hiding (Error)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy  as BSL
+import Data.Maybe
 import Data.Monoid
 import Network.BSD
-import Network.Socket hiding (recv, send)
+import Network.Socket hiding (recv, send, sendTo)
 import Network.Socket.ByteString
+import System.IO
 
 import Types
 
@@ -20,7 +23,9 @@ initState teamName addr ix = do
     hAddr <- inet_addr addr
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
-    return $ TraderState teamName sock sockAddr
+    h <- socketToHandle sock ReadWriteMode
+    return $ TraderState teamName h
+
 
 handshake :: Trader ()
 handshake = do
@@ -30,18 +35,18 @@ handshake = do
     liftIO $ putStrLn "Sent hello"
     msg <- recvMessage
     liftIO $ print msg
-    return ()
+    liftIO $ putStrLn "Handshake complete"
 
 sendMessage :: ClientMessage -> Trader ()
 sendMessage message = do
     TraderState{..} <- get
     let msg = BSL.toStrict $ encode message
-    liftIO $ BSC.putStrLn msg
-    numSent <- liftIO $ send traderSocket msg
-    liftIO $ putStrLn $ "Sent " <> show numSent <> " bytes."
+    liftIO $ BSC.hPutStrLn traderHandle msg
 
 recvMessage :: Trader ServerMessage
 recvMessage = do
     TraderState{..} <- get
     liftIO $ putStrLn "getting response"
-    liftIO $ Error <$> BSC.unpack <$> recv traderSocket 100000
+    msg <- liftIO $ BSL.fromStrict <$> BSC.hGetLine traderHandle
+    liftIO $ print msg
+    return $ fromJust $ decode msg

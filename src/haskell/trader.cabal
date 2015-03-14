@@ -26,6 +26,8 @@ library
                        aeson,
                        network,
                        text
+  ghc-options:         -Wall
+  default-language:    Haskell2010
 
 executable trader
   main-is:             Main.hs

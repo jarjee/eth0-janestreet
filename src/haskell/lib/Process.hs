@@ -1,6 +1,5 @@
 module Process where
 
-import Control.Monad
 import Control.Monad.State
 
 import Types
@@ -11,7 +10,7 @@ runTrader :: IO TraderState
           -> IO a
 runTrader initState cleanup collect =
     let collect' = unTrader $ do
-        result <- collect
-        cleanup
-        return result
+            result <- collect
+            cleanup
+            return result
     in initState >>= evalStateT collect'

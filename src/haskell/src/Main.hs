@@ -10,4 +10,4 @@ main :: IO ()
 main = do
     [addr, ix'] <- getArgs
     let ix = read ix'
-    runTrader (initState "CARBONFOURTEEN" addr ix) (return ()) handshake
+    runTrader (initState "OHAITHAR" addr ix) (return ()) handshake
