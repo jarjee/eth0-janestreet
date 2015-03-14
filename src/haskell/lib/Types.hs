@@ -163,6 +163,8 @@ data TraderState = TraderState
     , marketState   :: Map Symbol (BookBuys, BookSells)
     , cash          :: Integer
     , numOrders     :: Integer
+    , histBuyDiv    :: Map Symbol Double
+    , histSellDiv   :: Map Symbol Double
     } deriving (Show)
 
 newtype Trader a = Trader {

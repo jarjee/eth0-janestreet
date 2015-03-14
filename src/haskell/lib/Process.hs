@@ -3,14 +3,18 @@
 
 module Process where
 
+import Control.Concurrent
 import Control.Monad.State
 import qualified Data.Map as M
+import Data.Maybe
 import Data.Monoid
 import Data.Sequence(ViewL(..))
 import qualified Data.Sequence as Sq
 import Network.BSD
 import Network.Socket
 import System.IO
+import System.Random(randomR)
+import System.Random.Mersenne
 
 import Connection
 import Types
@@ -33,7 +37,7 @@ initState teamName addr ix = do
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
     h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName False h 7 2 mempty mempty mempty mempty mempty 0 1
+    return $ TraderState teamName False h 30 2 mempty mempty mempty mempty mempty 0 1 mempty mempty
 
 processMessage :: ServerMessage -> Trader ()
 processMessage (ServerHello c sq b) = do
@@ -47,7 +51,12 @@ processMessage (Error str)          = liftIO $ putStrLn $ "we got an error: " <>
 processMessage (Book sym bb bs)     = do
     s@TraderState{..} <- get
     put s{marketState=M.insert sym (bb, bs) marketState}
-processMessage (Trade sym (Price p) (Quantity q)) = updateBuffer sym p q >> considerTrade
+processMessage (Trade sym (Price p) (Quantity q)) = do
+    updateBuffer sym p q
+    x <- liftIO $ getStdRandom random
+    if ((x :: Double) < 0.10) then
+        considerEdge
+    else considerTrade--Trade
 processMessage (Ack _)              = return ()
 processMessage (Reject oid str)     = liftIO $ putStrLn $ 
     "we got a rejection for order: " <> show oid <> ", rejection reason: " <> str
@@ -110,6 +119,19 @@ updateBuffer sym p q = do
                        M.insert sym (joinGaussian g (tradeToGaussian p q)) stockEntries
     put s{stockEntries=newEntries}
 
+considerEdge :: Trader ()
+considerEdge = do
+    TraderState{..} <- get
+    forM_ (M.toList stockEntries) $ (\(sym, g) -> do
+        case M.lookup sym marketState of
+            Just (BookBuys (bb:bbs), BookSells (bs:bss)) -> do
+                let (bestBuy, buyQ)   = (\(BookEntry p q) -> (p, q)) bb
+                let (bestSell, sellQ) = (\(BookEntry p q) -> (p, q)) bs
+                
+                sell sym 50 (bestSell + 1)
+                buy  sym 50 (bestBuy  - 1)
+            _ -> return ()) 
+
 considerTrade :: Trader ()
 considerTrade = do
     TraderState{..} <- get
@@ -119,26 +141,82 @@ considerTrade = do
                 let (bestBuy, buyQ)   = (\(BookEntry p q) -> (p, q)) bb
                 let (bestSell, sellQ) = (\(BookEntry p q) -> (p, q)) bs
                 let (bBuy, bSell) = bFactor g kFactor bestBuy bestSell
-                when (bBuy  > 0.8) $ sell sym 100 bestBuy
-                when (bSell < 0.2) $ buy  sym 100 bestSell
-            Just _ -> liftIO $ putStrLn "no buy orders lulz"
+                let bDiv' = fromMaybe 1 $ M.lookup sym histBuyDiv
+                let sDiv' = fromMaybe 1 $ M.lookup sym histSellDiv
+                let bDiv = bBuy / bDiv'
+                let sDiv = bSell / sDiv'
+              {-  liftIO $ putStrLn $ "bBuy: "  <> show bBuy  <>
+                           " bSell: " <> show bSell <>
+                           " bDiv: " <> show bDiv <>
+                           " bSell: " <> show sDiv-}
+                when (bBuy  > 0.75 && bDiv > 1.5) $ sell sym 100 bestBuy >> removeBuys  sym
+                when (bSell < 0.25 && sDiv < 1)   $ sell sym 100 bestBuy >> removeBuys  sym
+                when (bSell < 0.25 && sDiv > 1.5) $ buy  sym 100 bestSell >> removeSells sym
+                updateDivs sym (bBuy, bSell)
+            Just _ -> return ()
             Nothing -> return ())
+
+updateDivs :: Symbol -> (Double, Double) -> Trader ()
+updateDivs sym (b, s) = do
+    s <- get
+    put s{histBuyDiv=M.insert sym b $ histBuyDiv s
+         ,histSellDiv=M.insert sym b $ histSellDiv s}
+
+removeBuys :: Symbol -> Trader ()
+removeBuys sym = do
+    s <- get
+    liftIO $ putStrLn $ "Clearing buys:" <> show sym
+    case M.lookup sym $ ourBuyOrders s of
+        Just iMap -> do
+            forM_ (M.toList iMap) (\(oid, (p, q)) -> (sendMessage $ Cancel oid) >> (liftIO $ putStrLn $ show p <> " " <> show q))
+            put s{ourBuyOrders=M.insert sym mempty $ ourBuyOrders s}
+        Nothing   -> return () 
+
+removeSells :: Symbol -> Trader ()
+removeSells sym = do
+    s <- get
+    liftIO $ putStrLn $ "Clearing sells: " <> show sym 
+    case M.lookup sym $ ourSellOrders s of
+        Just iMap -> do
+            forM_ (M.toList iMap) (\(oid, (p, q)) -> (sendMessage $ Cancel oid) >> (liftIO $ putStrLn $ show p <> " " <> show q))
+            put s{ourSellOrders=M.insert sym mempty $ ourSellOrders s}
+        Nothing   -> return () 
 
 buy :: Symbol -> Quantity -> Price -> Trader ()
 buy sym q p = do
     s@TraderState{..} <- get
-    sendMessage $ Add (OrderId numOrders) sym Buy p q 
-    let newNumOrders = numOrders+1
-    let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourBuyOrders 
-    put s{ourBuyOrders = newOrders, numOrders = newNumOrders}
+    x <- evalBuy sym
+    when (x < 1500) $ do
+        sendMessage $ Add (OrderId numOrders) sym Buy p q 
+        let newNumOrders = numOrders+1
+        let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourBuyOrders 
+        put s{ourBuyOrders = newOrders, numOrders = newNumOrders}
+
+evalBuy :: Symbol -> Trader Integer
+evalBuy sym = do
+    s@TraderState{..} <- get
+    let x = fromMaybe 0 (M.lookup sym inventory)
+    let iMapBuy = fromMaybe mempty $ M.lookup sym ourBuyOrders
+    let buyOrdQuant = fromIntegral $ M.fold (\(_,y) acc -> y + acc) 0 iMapBuy
+    return $ x + buyOrdQuant
+
+evalSell :: Symbol -> Trader Integer
+evalSell sym = do
+    s@TraderState{..} <- get
+    let x = fromMaybe 0 (M.lookup sym inventory)
+    let iMapSell = fromMaybe mempty $ M.lookup sym ourBuyOrders
+    let sellOrdQuant = fromIntegral $ M.fold (\(_,y) acc -> y + acc) 0 iMapSell
+    return $ x - sellOrdQuant
 
 sell :: Symbol -> Quantity -> Price -> Trader ()
 sell sym q p = do
     s@TraderState{..} <- get
-    sendMessage $ Add (OrderId numOrders) sym Sell p q 
-    let newNumOrders = numOrders+1
-    let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourSellOrders 
-    put s{ourSellOrders = newOrders, numOrders = newNumOrders}
+    x <- evalSell sym
+    when (x > -1500) $ do
+        sendMessage $ Add (OrderId numOrders) sym Sell p q 
+        let newNumOrders = numOrders+1
+        let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourSellOrders 
+        put s{ourSellOrders = newOrders, numOrders = newNumOrders}
 
 bFactor :: Gaussian -> Int -> Price ->  Price -> (Double, Double)
 bFactor g k (Price bestBuy) (Price bestSell) =
