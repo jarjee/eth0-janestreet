@@ -1,8 +1,13 @@
 module Main where
 
+import System.Environment
+
 import Types
 import Process
 import Connection
 
 main :: IO ()
-main = runTrader (initState "CARBONFOURTEEN" "10.0.131.184" 0) (return ()) handshake
+main = do
+    [addr, ix'] <- getArgs
+    let ix = read ix'
+    runTrader (initState "CARBONFOURTEEN" addr ix) (return ()) handshake

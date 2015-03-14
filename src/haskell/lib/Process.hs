@@ -9,11 +9,9 @@ runTrader :: IO TraderState
           -> Trader ()
           -> Trader a
           -> IO a
-runTrader initState cleanup collect = do
+runTrader initState cleanup collect =
     let collect' = unTrader $ do
         result <- collect
         cleanup
         return result
-    [addr, ix'] <- getArgs
-    let ix = read ix'
     in initState >>= evalStateT collect'

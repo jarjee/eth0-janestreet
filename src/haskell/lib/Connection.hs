@@ -7,6 +7,7 @@ import Control.Monad.State
 import Data.Aeson hiding (Error)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy  as BSL
+import Data.Monoid
 import Network.BSD
 import Network.Socket hiding (recv, send)
 import Network.Socket.ByteString
@@ -36,9 +37,11 @@ sendMessage message = do
     TraderState{..} <- get
     let msg = BSL.toStrict $ encode message
     liftIO $ BSC.putStrLn msg
-    void $ liftIO $ send traderSocket msg
+    numSent <- liftIO $ send traderSocket msg
+    liftIO $ putStrLn $ "Sent " <> show numSent <> " bytes."
 
 recvMessage :: Trader ServerMessage
 recvMessage = do
     TraderState{..} <- get
+    liftIO $ putStrLn "getting response"
     liftIO $ Error <$> BSC.unpack <$> recv traderSocket 100000
