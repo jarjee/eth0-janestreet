@@ -1,12 +1,16 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE StandaloneDeriving         #-}
-
+{-# LANGUAGE OverloadedStrings          #-}
 module Types where
 
 import Control.Applicative
 import Control.Monad
 import Control.Monad.State
 import Control.Monad.Trans
+import Data.Aeson
+import Data.Text(Text)
+
+import Network.Socket
 
 newtype OrderId = OrderId Integer
     deriving (Show, Ord, Eq)
@@ -36,6 +40,10 @@ data ClientMessage = ClientHello String
                    | Cancel OrderId
     deriving (Show, Ord, Eq)
 
+instance ToJSON ClientMessage where
+    toJSON (ClientHello tn) = object [ "type" .= ("hello" :: Text)
+                                     , "team" .= tn]
+
 data ServerMessage = ServerHello Integer [Symbol] Bool
                    | MarketOpen Bool
                    | Error String
@@ -47,16 +55,12 @@ data ServerMessage = ServerHello Integer [Symbol] Bool
                    | Out OrderId
     deriving (Show, Ord, Eq)
 
-data TraderState = TraderState {
-    teamName :: String
-}
-    deriving (Show, Ord, Eq)
+data TraderState = TraderState
+    { teamName       :: String
+    , traderSocket   :: Socket
+    , traderSockAddr :: SockAddr
+    } deriving (Show)
 
-newtype Trader m a = Trader {
-    unTrader :: StateT TraderState m a
-} deriving (Functor, Applicative, Monad, MonadState TraderState)
-
-deriving instance MonadIO m => MonadIO (Trader m)
-
-instance MonadTrans Trader where
-    lift = Trader . lift
+newtype Trader a = Trader {
+    unTrader :: StateT TraderState IO a
+} deriving (Functor, Applicative, Monad, MonadIO, MonadState TraderState)
