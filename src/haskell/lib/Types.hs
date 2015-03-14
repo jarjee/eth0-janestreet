@@ -155,7 +155,7 @@ data TraderState = TraderState
     { teamName     :: String
     , traderHandle :: Handle
     , windowSize   :: Int
-    , stockEntries :: Map Symbol (Seq (Integer, Integer), Integer, Integer) -- Moving average of trades
+    , stockEntries :: Map Symbol Gaussian
     , inventory    :: Map Symbol Int
     , marketState  :: Map Symbol (BookBuys, BookSells)
     , cash         :: Integer
@@ -165,3 +165,10 @@ data TraderState = TraderState
 newtype Trader a = Trader {
     unTrader :: StateT TraderState IO a
 } deriving (Functor, Applicative, Monad, MonadIO, MonadState TraderState)
+
+data Gaussian = Gaussian
+  { vals :: Seq (Integer, Integer)
+  , n    :: Integer
+  , m    :: Double
+  , v    :: Double
+  } deriving Show

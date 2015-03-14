@@ -35,7 +35,7 @@ initState teamName addr ix = do
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
     h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName h 15 mempty mempty mempty 0 0
+    return $ TraderState teamName h 5 mempty mempty mempty 0 0
 
 processMessage :: ServerMessage -> Trader ()
 processMessage  ServerHello{}       = return ()
@@ -55,27 +55,33 @@ updateBuffer :: Symbol -> Integer -> Integer -> Trader ()
 updateBuffer sym p q = do
     s@TraderState{..} <- get
     let newEntries = case M.lookup sym stockEntries of
-            Nothing -> M.insert sym (Sq.singleton(p,q), q, p*q) stockEntries
-            Just (buffer, q', weightedTotal) ->
-                if | (windowSize == Sq.length buffer) ->
-                       let (oldP, oldQ):<xs = Sq.viewl buffer
-                           newBuffer        = xs |> (p, q)
-                           newTotal         = weightedTotal - (oldP * oldQ) + (p * q)
-                           newQuantity      = q' - oldQ + q
-                       in M.insert sym (newBuffer, newQuantity, newTotal) stockEntries
+            Nothing -> M.insert sym (tradeToGaussian p q) stockEntries
+            Just g@(Gaussian vals n m v) ->
+                if | (windowSize == Sq.length vals) ->
+                       M.insert sym (joinGaussian (removeLast g) (tradeToGaussian p q)) stockEntries
                    | otherwise   ->
-                       let newBuffer    = buffer |> (p, q)
-                           newTotal     = weightedTotal  + (p * q)
-                           newQuantity  = q' + q
-                       in M.insert sym (newBuffer, newQuantity, newTotal) stockEntries
+                       M.insert sym (joinGaussian g (tradeToGaussian p q)) stockEntries
     put s{stockEntries=newEntries}
-
-viewAverages :: Trader (Map Symbol Double)
-viewAverages = M.map (\(_, q, t) -> (fromInteger t / fromInteger q)) <$> stockEntries <$> get
 
 rawProcessAll :: Trader ()
 rawProcessAll = forever $ do
     recvMessage >>= processMessage
     s@TraderState{..} <- get
-    viewAverages >>= (liftIO . print)
+    liftIO $ print stockEntries
     put s{numMessages=numMessages+1}
+
+tradeToGaussian :: Integer -> Integer -> Gaussian
+tradeToGaussian p q = Gaussian (Sq.singleton (p,q)) q (fromIntegral p) 0
+
+joinGaussian :: Gaussian -> Gaussian -> Gaussian
+joinGaussian (Gaussian vals1 n1 m1 v1) (Gaussian vals2 n2 m2 v2) =
+  let vals' = vals1 <> vals2
+      n'    = n1 + n2
+      m'    = (fromIntegral n1*m1 + fromIntegral n2*m2) / (fromIntegral n')
+      v'    = v1 + v2 + (fromIntegral n1 * m1 * m1) + (fromIntegral n2 * m2 * m2) - (fromIntegral n' * m' * m')
+  in Gaussian vals' n' m' v'
+
+removeLast :: Gaussian -> Gaussian
+removeLast g@(Gaussian vals n1 m1 v1) = joinGaussian g{vals=xs} g'
+  where (oldP, oldQ):<xs = Sq.viewl vals
+        g' = Gaussian mempty (fromIntegral $ -oldQ) (fromIntegral oldP) 0
