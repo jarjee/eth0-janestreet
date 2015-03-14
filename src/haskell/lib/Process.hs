@@ -37,8 +37,9 @@ initState teamName addr ix = do
 
 processMessage :: ServerMessage -> Trader ()
 processMessage (ServerHello c sq b) = do
-    s@TraderState{..} <- get
-    put s{marketOpen=b, cash=c}
+    st@TraderState{..} <- get
+    let inv = M.fromList $ map (\(SymbolWithQuantity s (Quantity q)) -> (s,q)) sq
+       in put st{marketOpen=b, cash=c, inventory=inv}
 processMessage (MarketOpen b)       = do
     s@TraderState{..} <- get
     put s{marketOpen=b}
