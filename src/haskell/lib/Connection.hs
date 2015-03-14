@@ -9,23 +9,11 @@ import Data.Aeson hiding (Error)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy  as BSL
 import Data.Maybe
-import Data.Monoid
 import Network.BSD
 import Network.Socket hiding (recv, send, sendTo)
-import Network.Socket.ByteString
 import System.IO
 
 import Types
-
-initState :: String -> String -> Int -> IO TraderState
-initState teamName addr ix = do
-    sock <- socket AF_INET Stream defaultProtocol
-    hAddr <- inet_addr addr
-    let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
-    connect sock sockAddr
-    h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName h
-
 
 handshake :: Trader ()
 handshake = do
@@ -46,7 +34,4 @@ sendMessage message = do
 recvMessage :: Trader ServerMessage
 recvMessage = do
     TraderState{..} <- get
-    liftIO $ putStrLn "getting response"
-    msg <- liftIO $ BSL.fromStrict <$> BSC.hGetLine traderHandle
-    liftIO $ print msg
-    return $ fromJust $ decode msg
+    liftIO $ fromJust <$> decode <$> BSL.fromStrict <$> BSC.hGetLine traderHandle
