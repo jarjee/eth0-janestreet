@@ -152,6 +152,7 @@ instance FromJSON ServerMessage where
 
 data TraderState = TraderState
     { teamName      :: String
+    , marketOpen    :: Bool
     , traderHandle  :: Handle
     , windowSize    :: Int
     , kFactor       :: Int

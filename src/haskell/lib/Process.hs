@@ -33,11 +33,16 @@ initState teamName addr ix = do
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
     h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName h 7 2 mempty mempty mempty mempty mempty 0 1
+    return $ TraderState teamName False h 7 2 mempty mempty mempty mempty mempty 0 1
 
 processMessage :: ServerMessage -> Trader ()
-processMessage  ServerHello{}       = return ()
-processMessage (MarketOpen False)   = return ()
+processMessage (ServerHello c sq b) = do
+    st@TraderState{..} <- get
+    let inv = M.fromList $ map (\(SymbolWithQuantity s (Quantity q)) -> (s,q)) sq
+       in put st{marketOpen=b, cash=c, inventory=inv}
+processMessage (MarketOpen b)       = do
+    s@TraderState{..} <- get
+    put s{marketOpen=b}
 processMessage (Error str)          = liftIO $ putStrLn $ "we got an error: " <> str
 processMessage (Book sym bb bs)     = do
     s@TraderState{..} <- get
