@@ -3,12 +3,10 @@
 
 module Process where
 
-import Control.Applicative
 import Control.Monad.State
-import Data.Map(Map)
 import qualified Data.Map as M
 import Data.Monoid
-import Data.Sequence((|>), ViewL(..))
+import Data.Sequence(ViewL(..))
 import qualified Data.Sequence as Sq
 import Network.BSD
 import Network.Socket
@@ -35,7 +33,7 @@ initState teamName addr ix = do
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
     h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName h 5 mempty mempty mempty 0 0
+    return $ TraderState teamName h 5 mempty mempty mempty mempty mempty 0 0
 
 processMessage :: ServerMessage -> Trader ()
 processMessage  ServerHello{}       = return ()
@@ -44,19 +42,54 @@ processMessage (Error str)          = liftIO $ putStrLn $ "we got an error: " <>
 processMessage (Book sym bb bs)     = do
     s@TraderState{..} <- get
     put s{marketState=M.insert sym (bb, bs) marketState}
-processMessage (Trade sym (Price p) (Quantity q)) = do
-    updateBuffer sym p q
+processMessage (Trade sym (Price p) (Quantity q)) = updateBuffer sym p q
 processMessage (Ack _)              = return ()
 processMessage (Reject oid str)     = liftIO $ putStrLn $ "we got a rejection for order: " <> show oid <> ", rejection reason: " <> str
-processMessage (Fill oid sym d p q) = return () --TODO
+processMessage (Fill oid sym d p q) = updateFill oid sym d p q
 processMessage (Out _)              = return ()
+
+updateFill :: OrderId -> Symbol -> Direction -> Price -> Quantity -> Trader ()
+updateFill oid sym Buy p q = do
+    s@TraderState{..} <- get
+    case M.lookup sym ourBuyOrders of
+        Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a buy fill for oid: " <> show oid <> " but we had no entry for the symbol, " <> show sym
+        Just iMap -> do
+            case M.lookup oid iMap of
+                Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a buy fill for oid: " <> show oid <> " but we had no entry for the oid. symbol: " <> show sym
+                Just (p', q') -> do
+                    updateInventory sym (fromIntegral q')
+                    updateCash $ (-1) * (fromIntegral p') * (fromIntegral q')
+                    let newIMap = M.insert oid (p'-p, q'-q) iMap
+                    put s{ourBuyOrders=M.insert sym newIMap ourBuyOrders}
+updateFill oid sym Sell p q = do
+    s@TraderState{..} <- get
+    case M.lookup sym ourSellOrders of
+        Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a sell fill for oid: " <> show oid <> " but we had no entry for the symbol, " <> show sym
+        Just iMap -> do
+            case M.lookup oid iMap of
+                Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a sell fill for oid: " <> show oid <> " but we had no entry for the oid. symbol: " <> show sym
+                Just (p', q') -> do
+                    updateInventory sym (fromIntegral $ -q')
+                    updateCash $ (fromIntegral p') * (fromIntegral q')
+                    let newIMap = M.insert oid (p'-p, q'-q) iMap
+                    put s{ourSellOrders=M.insert sym newIMap ourSellOrders}
+
+updateCash :: Integer -> Trader ()
+updateCash x = do
+    s <- get
+    put s{cash=cash s - x}
+
+updateInventory :: Symbol -> Integer -> Trader ()
+updateInventory sym x = do
+    s <- get
+    put s{inventory=M.insertWith (+) sym x (inventory s)}
 
 updateBuffer :: Symbol -> Integer -> Integer -> Trader ()
 updateBuffer sym p q = do
     s@TraderState{..} <- get
     let newEntries = case M.lookup sym stockEntries of
             Nothing -> M.insert sym (tradeToGaussian p q) stockEntries
-            Just g@(Gaussian vals n m v) ->
+            Just g@(Gaussian vals _ _ _) ->
                 if | (windowSize == Sq.length vals) ->
                        M.insert sym (joinGaussian (removeLast g) (tradeToGaussian p q)) stockEntries
                    | otherwise   ->
@@ -82,6 +115,6 @@ joinGaussian (Gaussian vals1 n1 m1 v1) (Gaussian vals2 n2 m2 v2) =
   in Gaussian vals' n' m' v'
 
 removeLast :: Gaussian -> Gaussian
-removeLast g@(Gaussian vals n1 m1 v1) = joinGaussian g{vals=xs} g'
+removeLast g@(Gaussian vals _ _ _) = joinGaussian g{vals=xs} g'
   where (oldP, oldQ):<xs = Sq.viewl vals
         g' = Gaussian mempty (fromIntegral $ -oldQ) (fromIntegral oldP) 0

@@ -8,7 +8,6 @@ import Control.Monad.State
 import Data.Aeson hiding (Error)
 import Data.Text(Text)
 import Data.Map(Map)
-import qualified Data.Sequence as Sq
 import Data.Sequence(Seq)
 import System.IO
 import Data.Vector((!))
@@ -44,7 +43,7 @@ instance FromJSON SymbolWithQuantity where
     parseJSON _ = mzero
 
 newtype Price = Price Integer
-    deriving (Show, Ord, Eq)
+    deriving (Show, Ord, Eq, Num, Integral, Real, Enum)
 
 instance ToJSON Price where
     toJSON (Price x) = toJSON x
@@ -53,7 +52,7 @@ instance FromJSON Price where
     parseJSON x = Price <$> parseJSON x
 
 newtype Quantity = Quantity Integer
-    deriving (Show, Ord, Eq)
+    deriving (Show, Ord, Eq, Num, Integral, Real, Enum)
 
 instance ToJSON Quantity where
     toJSON (Quantity x) = toJSON x
@@ -152,14 +151,16 @@ instance FromJSON ServerMessage where
     parseJSON _ = error "Only expect objects"
 
 data TraderState = TraderState
-    { teamName     :: String
-    , traderHandle :: Handle
-    , windowSize   :: Int
-    , stockEntries :: Map Symbol Gaussian
-    , inventory    :: Map Symbol Int
-    , marketState  :: Map Symbol (BookBuys, BookSells)
-    , cash         :: Integer
-    , numMessages  :: Int
+    { teamName      :: String
+    , traderHandle  :: Handle
+    , windowSize    :: Int
+    , stockEntries  :: Map Symbol Gaussian
+    , inventory     :: Map Symbol Integer
+    , ourSellOrders :: Map Symbol (Map OrderId (Price, Quantity))
+    , ourBuyOrders  :: Map Symbol (Map OrderId (Price, Quantity))
+    , marketState   :: Map Symbol (BookBuys, BookSells)
+    , cash          :: Integer
+    , numMessages   :: Integer
     } deriving (Show)
 
 newtype Trader a = Trader {
