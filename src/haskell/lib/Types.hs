@@ -54,10 +54,9 @@ data TraderState = TraderState {
 
 newtype Trader m a = Trader {
     unTrader :: StateT TraderState m a
-} deriving (Functor, Applicative, Monad)
+} deriving (Functor, Applicative, Monad, MonadState TraderState)
 
 deriving instance MonadIO m => MonadIO (Trader m)
 
 instance MonadTrans Trader where
     lift = Trader . lift
-
