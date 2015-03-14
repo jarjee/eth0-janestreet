@@ -9,9 +9,6 @@ import Data.Aeson hiding (Error)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.ByteString.Lazy  as BSL
 import Data.Maybe
-import Network.BSD
-import Network.Socket hiding (recv, send, sendTo)
-import System.IO
 
 import Types
 
