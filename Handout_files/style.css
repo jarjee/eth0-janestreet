@@ -1,0 +1,29 @@
+body { font-family: monospace;
+       font-size: 2em;
+       max-width: 35em;
+       padding-right: 350px;
+       padding-left: 10%;
+     }
+#handout { font-size: 0.6em; }
+/* Due to the wonders of CSS, this actually has an effect. It cancels the
+ * "font-size: medium" declaration that my Chrome was applying by default */
+#handout table { font-size: 1em }
+div#content div#handout { background-color: white; opacity: 0.75 }
+
+#postamble { display: none }
+
+h1 { font-weight: bold }
+img#logo { position: fixed; right: -100px; top: -100px; z-index: -3 }
+div#text { background-color: white; opacity: 0.75 }
+div#email { padding-left: 3em; font-size: 1.3em; font-weight: bold }
+div#email a { color: black }
+div#email a:hover { text-decoration: none }
+
+div#table-of-contents {
+    font-size: .6em;
+    position: fixed; right: 20px; bottom: 20px;
+    background-color: white; opacity: 0.8;
+    max-width: 350px;
+}
+div#table-of-contents:hover { opacity: 1 }
+div#table-of-contents a { text-decoration: none }

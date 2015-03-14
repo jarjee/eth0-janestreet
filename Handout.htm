@@ -1,0 +1,1324 @@
+<!--?xml version="1.0" encoding="iso-8859-1"?-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+<title>eth0</title>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="title" content="eth0">
+<meta name="generator" content="Org-mode">
+<meta name="generated" content="2015-01-31T12:03+0000">
+<meta name="author" content="Ubuntu">
+<meta name="description" content="">
+<meta name="keywords" content="">
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+  .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+  .center {margin-left:auto; margin-right:auto; text-align:center;}
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top;  }
+  th.right  { text-align:center;  }
+  th.left   { text-align:center;   }
+  th.center { text-align:center; }
+  td.right  { text-align:right;  }
+  td.left   { text-align:left;   }
+  td.center { text-align:center; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  div.inlinetask {
+    padding:10px;
+    border:2px solid gray;
+    margin:10px;
+    background: #ffffcc;
+  }
+  textarea { overflow-x: auto; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<link rel="stylesheet" type="text/css" href="Handout_files/style.css">
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+
+</head>
+<body>
+
+<div id="preamble">
+
+</div>
+
+<div id="content">
+<h1 class="title">eth0</h1>
+
+
+
+
+
+<img id="logo" src="Handout_files/logo.bin">
+<div id="handout">
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Introduction to the competition</a></li>
+<li><a href="#sec-2">2 Introduction to trading</a>
+<ul>
+<li><a href="#sec-2-1">2.1 The business of market making</a></li>
+<li><a href="#sec-2-2">2.2 The order book</a></li>
+<li><a href="#sec-2-3">2.3 The exchange protocol</a></li>
+<li><a href="#sec-2-4">2.4 Your portfolio</a></li>
+<li><a href="#sec-2-5">2.5 Some basic trading strategies</a>
+<ul>
+<li><a href="#sec-2-5-1">2.5.1 Pennying</a></li>
+<li><a href="#sec-2-5-2">2.5.2 Taking</a></li>
+<li><a href="#sec-2-5-3">2.5.3 Fair values</a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-3">3 The competition structure</a>
+<ul>
+<li><a href="#sec-3-1">3.1 The marketplace</a></li>
+<li><a href="#sec-3-2">3.2 Times of competitions</a></li>
+<li><a href="#sec-3-3">3.3 Scoring</a></li>
+<li><a href="#sec-3-4">3.4 Technical details</a></li>
+</ul>
+</li>
+<li><a href="#sec-4">4 Some golden rules</a></li>
+<li><a href="#sec-5">5 Other rules</a></li>
+<li><a href="#sec-6">6 Technical details</a>
+<ul>
+<li><a href="#sec-6-1">6.1 Overview</a>
+<ul>
+<li><a href="#sec-6-1-1">6.1.1 Client messages</a></li>
+<li><a href="#sec-6-1-2">6.1.2 Server messages</a></li>
+</ul>
+</li>
+<li><a href="#sec-6-2">6.2 "Types"</a></li>
+<li><a href="#sec-6-3">6.3 Server ports</a></li>
+<li><a href="#sec-6-4">6.4 Handshake</a></li>
+<li><a href="#sec-6-5">6.5 Errors</a></li>
+<li><a href="#sec-6-6">6.6 Market hours</a></li>
+<li><a href="#sec-6-7">6.7 Available symbols</a></li>
+<li><a href="#sec-6-8">6.8 Orders</a></li>
+<li><a href="#sec-6-9">6.9 Public feed</a></li>
+<li><a href="#sec-6-10">6.10 Running and testing your bots</a>
+<ul>
+<li><a href="#sec-6-10-1">6.10.1 Testing your bot</a></li>
+<li><a href="#sec-6-10-2">6.10.2 Installing your bot</a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-7">7 FAQ</a>
+<ul>
+<li><a href="#sec-7-1">7.1 Trading through</a></li>
+<li><a href="#sec-7-2">7.2 My JSON messages are being ignored!</a></li>
+<li><a href="#sec-7-3">7.3 Can I use &lt;favourite library&gt; or &lt;favourite search engine&gt;?</a></li>
+<li><a href="#sec-7-4">7.4 Will there be food?</a></li>
+<li><a href="#sec-7-5">7.5 How do I open the market on my test exchange?</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction to the competition</h2>
+<div class="outline-text-2" id="text-1">
+
+<p>eth0 is a 12hr programming competition. The goal is to write a program that
+will send buy and sell orders to a fake financial exchange. Other participants
+in the market will be other people's programs, and also some programs provided
+by us (the "marketplace bots").
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Introduction to trading</h2>
+<div class="outline-text-2" id="text-2">
+
+
+</div>
+
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> The business of market making</h3>
+<div class="outline-text-3" id="text-2-1">
+
+<p>Market making is one way that firms participate on the financial markets. The
+purpose of market making is to act as a intermediary for other people's trading.
+For example, suppose Alice wants to buy some shares, and Bob wants to sell some.
+It seems good for them to trade against each other, but if we require that they
+meet at the exchange at the same time, this is not likely to be efficient. If
+this were really how markets worked, you might be afraid to invest in shares,
+because who knows whether you'd be lucky enough to find a seller when it came to
+sell them?
+</p>
+<p>
+Market makers are always willing to buy and always willing to sell. They have
+some conception of how much a security is worth, and will have resting buy
+orders on the book below that price and resting sell orders above that price.
+You can think of market making a bit like running a supermarket: you are simply
+the link between the sellers of goods (wholesale producers) and the buyers
+(shoppers). You charge some difference between your purchase and sale prices in
+order to make a profit. You want to keep your inventory (i.e., your positions)
+small in order to not be exposed to stocks, on which you don't really have a
+long-term opinion, crashing.
+</p>
+<p>
+It's important to note that it's wrong to think of trading as strictly a
+zero-sum game. In particular, there will be other participants in the eth0
+market beyond the bots you create. Some of these might act like "investors" --
+people just wishing to buy (or sell) securities, who want to keep that position
+for a long time, putting capital at risk in order to earn a return. They're not
+very sensitive to the price, since they mostly just trust that the market has
+the fair price for the security right now. So they're likely to buy or sell on
+whatever market they see. Other participants are competing with you – they have
+a rough idea of what they think the stock is worth, and they'll try to buy below
+that and sell above it.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-2" class="outline-3">
+<h3 id="sec-2-2"><span class="section-number-3">2.2</span> The order book</h3>
+<div class="outline-text-3" id="text-2-2">
+
+<p>An "order" is an instruction to buy or sell a security. The parameters you
+provide are:
+</p>
+<ul>
+<li>The name of the security (financial product) you want to trade
+</li>
+<li>Whether you want to buy or sell
+</li>
+<li>The "worst" price you're willing to transact at (i.e. the highest price
+  you're willing to buy for, if you're buying, or the lowest price you're
+  willing to sell for if you're selling).
+</li>
+<li>How many shares / contracts of this particular security you want to buy or
+  sell. 
+</li>
+</ul>
+
+
+<p>
+An exchange is a program that matches up people who are willing to buy and sell
+in the following way.
+</p>
+<p>
+Suppose you're the first person to send an order that day. You send: buy 10
+shares for $95. No-one is willing to trade against you right now, so the
+exchange just enters your order into a "book" and it sits there.
+</p>
+<table rules="groups" frame="hsides" border="2" cellpadding="6" cellspacing="0">
+<colgroup><col class="left"><col class="left"><col class="left"><col class="left">
+</colgroup>
+<tbody>
+<tr><td class="left">buys</td><td class="left"></td><td class="left">sells</td><td class="left"></td></tr>
+<tr><td class="left">10</td><td class="left">$95</td><td class="left"></td><td class="left"></td></tr>
+</tbody>
+</table>
+
+
+<p>
+Let's say someone else comes along and also sends a buy order for $95, for 100
+shares. They can't trade with you – you both want to buy. So now the book
+looks like this:
+</p>
+<table rules="groups" frame="hsides" border="2" cellpadding="6" cellspacing="0">
+<colgroup><col class="left"><col class="left"><col class="left"><col class="left">
+</colgroup>
+<tbody>
+<tr><td class="left">buys</td><td class="left"></td><td class="left">sells</td><td class="left"></td></tr>
+<tr><td class="left">110</td><td class="left">$95</td><td class="left"></td><td class="left"></td></tr>
+</tbody>
+</table>
+
+
+<p>
+Note that the exchange displays the sum of all of the orders at a given price
+point and doesn't divide it up into the individual orders.
+</p>
+<p>
+A few more people come in and send: a sell order for 500 shares at $101, a sell
+order for 50 shares at $102, and a sell order for 3000 shares at $105. There is
+still no trading – the most anyone is willing to buy for is $95, but the least
+anyone is willing to sell for is $101.
+</p>
+<table rules="groups" frame="hsides" border="2" cellpadding="6" cellspacing="0">
+<colgroup><col class="left"><col class="left"><col class="left"><col class="right">
+</colgroup>
+<tbody>
+<tr><td class="left">buys</td><td class="left"></td><td class="left">sells</td><td class="right"></td></tr>
+<tr><td class="left">110</td><td class="left">$95</td><td class="left">$101</td><td class="right">500</td></tr>
+<tr><td class="left"></td><td class="left"></td><td class="left">$102</td><td class="right">50</td></tr>
+<tr><td class="left"></td><td class="left"></td><td class="left">$105</td><td class="right">3000</td></tr>
+</tbody>
+</table>
+
+
+<p>
+Finally, someone comes along and sends a sell order for 30 shares at a price of
+$95. This can trade with the buy orders. Which orders get "filled"? The 10-share
+order gets fully filled first, as that was on the exchange first (this is called
+"price-time priority": the orders are sorted first by price, and then by age).
+The owner of that order gets a message saying their order has traded. Then there
+are 20 shares left to transact, and they form a partial fill of the 100-share
+order. That person gets a message too. And of course, the person who sent the
+sell order gets a message (or possibly multiple messages) about their fills.
+</p>
+<p>
+After that's all done, the book looks like this:
+</p>
+<table rules="groups" frame="hsides" border="2" cellpadding="6" cellspacing="0">
+<colgroup><col class="left"><col class="left"><col class="left"><col class="right">
+</colgroup>
+<tbody>
+<tr><td class="left">buys</td><td class="left"></td><td class="left">sells</td><td class="right"></td></tr>
+<tr><td class="left">80</td><td class="left">$95</td><td class="left">$101</td><td class="right">500</td></tr>
+<tr><td class="left"></td><td class="left"></td><td class="left">$102</td><td class="right">50</td></tr>
+<tr><td class="left"></td><td class="left"></td><td class="left">$105</td><td class="right">3000</td></tr>
+</tbody>
+</table>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2-3" class="outline-3">
+<h3 id="sec-2-3"><span class="section-number-3">2.3</span> The exchange protocol</h3>
+<div class="outline-text-3" id="text-2-3">
+
+<p>What sorts of messages form the protocol between the exchange and you?
+</p>
+<p>
+You to exchange:
+</p><ul>
+<li>Adds: a request to buy or sell a security; "add order".
+</li>
+<li>Cancels: a request to pull from the book some previously-placed order that
+  hasn't traded yet.
+</li>
+</ul>
+
+
+<p>
+Exchange to you (private):
+</p><ul>
+<li>Order acks: "your order was successfully placed on the book"
+</li>
+<li>Rejects: "your order wasn't valid for this reason: …" (e.g. negative price,
+  malformed syntax etc.)
+</li>
+<li>Outs: following a cancel, "your order is no longer on the book".
+</li>
+<li>Fill: your order traded.
+</li>
+</ul>
+
+
+<p>
+Exchange to you (public):
+</p><ul>
+<li>Book: "the current state of the book is…"
+</li>
+<li>Trade: "two (anonymous) people traded at price X"
+</li>
+</ul>
+
+
+<p>
+The technical specifications for this protocol is listed at the bottom of this
+document.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-4" class="outline-3">
+<h3 id="sec-2-4"><span class="section-number-3">2.4</span> Your portfolio</h3>
+<div class="outline-text-3" id="text-2-4">
+
+<p>You have an account (like a bank account) that can hold both cash and shares in
+financial securities. At the beginning of the competition your account is empty
+– no cash, no shares. The number of shares of a particular security that you
+own is called your <i>position</i> in that security. If you buy a share, your cash
+goes down and your position goes up. If you sell, the opposite. 
+</p>
+<p>
+Note that it is possible to have both negative cash balances and negative
+positions – you can effectively borrow money or shares from the bank at which
+you hold the account. (There are limits on this – see below.)
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-5" class="outline-3">
+<h3 id="sec-2-5"><span class="section-number-3">2.5</span> Some basic trading strategies</h3>
+<div class="outline-text-3" id="text-2-5">
+
+<p>So the idea is:
+</p>
+<ul>
+<li>Have some idea of a fair value
+</li>
+<li>Attempt to buy the stock for less than fair, and sell it for more than fair.
+</li>
+</ul>
+
+
+<p>
+It may seem that all the trickery is in the first bit, and indeed it is
+possible to do some very complex things in that space. But it's also not
+obvious how to achieve the second bit. Let's look at some basic ideas.
+</p>
+<p>
+If you think a financial security is worth exactly $100, it is impossible to
+make money by sending buy or sell orders at exactly $100. Obviously, you'll
+want to send buy orders below $100 and sell orders above there. The difference
+between the price of an order or fill and your fair value is called the edge.
+More precisely:
+</p>
+<pre class="example"> edge = dir_sign * (fair value - order price)
+ where dir_sign = 1 for buying and -1 for selling
+</pre>
+
+
+<p>
+The way to think about edge is that it is the profit you earn by completing
+that trade. 
+</p>
+<p>
+So given a fair value, where should you send orders? Let's look at two ideas:
+</p>
+
+</div>
+
+<div id="outline-container-2-5-1" class="outline-4">
+<h4 id="sec-2-5-1"><span class="section-number-4">2.5.1</span> Pennying</h4>
+<div class="outline-text-4" id="text-2-5-1">
+
+<p>You want to earn the most edge you can. Pennying is the idea that you look at
+the current best bid and ask price, and send orders the minimum amount "inside"
+that. I.e. you send a buy order at [current best bid + 1] and a sell order at
+[current best offer - 1].
+</p>
+<p>
+This kind of strategy is called providing liquidity. You place orders on the
+book, and when price-insensitive people want to come along and trade, they find
+your orders already sitting there, and trade against them.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-5-2" class="outline-4">
+<h4 id="sec-2-5-2"><span class="section-number-4">2.5.2</span> Taking</h4>
+<div class="outline-text-4" id="text-2-5-2">
+
+<p>If you were one of the marketplace bots (say a speculator or hedger), and you
+want to just buy some of this stock, you might just go and trade against the
+current best offer. But you might be able to get a slightly better price by
+sending at the current best offer price minus a little bit. Sometimes people
+will do this. So your bot may see orders that are good to its fair value, i.e. a
+buy order that is higher than fair or a sell order that is lower than fair.
+Sending an order to trade against those, when they appear, can also be a good
+idea.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2-5-3" class="outline-4">
+<h4 id="sec-2-5-3"><span class="section-number-4">2.5.3</span> Fair values</h4>
+<div class="outline-text-4" id="text-2-5-3">
+
+<p>How might you come up with a fair value in the first place? There are some
+classes of security for which this is relatively straightfoward. For example,
+there are securities known as ETFs, which basically represent a basket of other
+securities. If there is an ETF called FRED, and one share of FRED contains 0.5
+shares of HENRY and 4 shares of EMMA, then it should be fairly clear what the
+fair value for FRED is given a fair value for HENRY and EMMA. Exchanges often
+provide a mechanism by which you can say: "I own the basket of stocks for this
+ETF all in the right ratio. Please take that basket and give me one share of the
+ETF". You can also do it the other way around.
+</p>
+<p>
+For non-ETF securities, it is less obvious what you might do. In general,
+predicting whether stock will go up or down is hard, so it is unlikely you will
+be able to make money by betting on stock going up or down. That said, it can
+still be possible to make money by providing liquidity in these stocks, but we
+we will give no further hints in this section :)
+</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> The competition structure</h2>
+<div class="outline-text-2" id="text-3">
+
+
+</div>
+
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> The marketplace</h3>
+<div class="outline-text-3" id="text-3-1">
+
+<p>The structure of the competition is that: you and another team compete to be
+the best market maker, providing liquidity to a third bot called the
+"marketplace". 
+</p>
+<p>
+The marketplace has an internal random process for each stock which represents
+the fair value of that stock. (At the end of the competition, the portfolio you
+have amassed will be evaluated using these fair values – see later.) The
+marketplace will send some orders around the fair value. Some orders will, like
+yours, be orders intended to provide liquidity. Other orders from the
+marketplace will be emulating liquidity demanders – people who just wish to
+buy or sell a certain amount of shares, and don't care too much about the price
+they get.
+</p>
+<p>
+In particular, it is not the marketplace's job to make money. Although
+technically speaking the marketplace is a "bot", its positions or pnl is not
+very relevant. The marketplace is meant to represent a whole bunch of different
+market participants, some of whom are more price-sensitive than others. This is
+representative of the fact that we mentioned above – it's unhelpful to think of
+trading as a zero-sum game.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-2" class="outline-3">
+<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Times of competitions</h3>
+<div class="outline-text-3" id="text-3-2">
+
+<p>We will run scoring rounds at 6, 9 and 12 hours into the competition. The scores 
+from each round will contribute 10, 30, and 60 percent, respectively, to your 
+final score.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-3" class="outline-3">
+<h3 id="sec-3-3"><span class="section-number-3">3.3</span> Scoring</h3>
+<div class="outline-text-3" id="text-3-3">
+
+<p>In each scoring round your bot will be set up in multiple pairings. Each pairing
+consists of an exchange on which your bot, a competitors bot, and some number of
+our marketplace bots are trading for some period of time. At the end of each
+pairing your profit/loss (aka "pnl") for that pairing is calculated by taking
+the amount of cash in your account (e.g. if you buy a security for 10, and then
+sell it for 12, you would have 2 cash in your account), and adding the value of
+all your holdings.
+</p>
+<p>
+Your scores from all pairings are then sorted and weighted by their rank. For
+example, suppose that in three runs you scored 30, 100, and -21. Your total
+score for this scoring round is then:
+</p>
+<p>
+1 * 100 + 2 * 30 + 3 * (-21) = 97.
+</p>
+<p>
+It should be obvious that this puts an emphasis on never doing very poorly. This
+is reflective of the real world: you may do particularly well on some days, but
+you really want to avoid losing all your money because then you're out of a job.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-3-4" class="outline-3">
+<h3 id="sec-3-4"><span class="section-number-3">3.4</span> Technical details</h3>
+<div class="outline-text-3" id="text-3-4">
+
+<p>See the "technical details" section below.
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Some golden rules</h2>
+<div class="outline-text-2" id="text-4">
+
+<ol>
+<li>You must not attempt to manipulate other people's bots.
+</li>
+<li>You must not attempt to manipulate the exchange.
+</li>
+</ol>
+
+
+<p>
+You are building a bot to provide a service to the marketplace bots, and
+competing to do so in the best possible way.
+</p>
+<p>
+Some examples of what would count as manipulation:
+</p><ul>
+<li>Trading with yourself in order to publish "fake" trades to all participants,
+  in an attempt to have them believe the trade price is a reasonable fair value
+  for the security.
+</li>
+<li>Sending orders to the exchange where you know at the time of sending that you
+  want to cancel the orders and never let them trade. If you think it would be
+  a bad idea to buy security for price P, then you shouldn't send orders to
+  buy that security for price P.
+</li>
+<li>Sending messages at an excessive rate to the exchange. You should send no
+  more than 500 messages per second.
+</li>
+</ul>
+
+
+<p>
+We reserve the right to subtract some from your bot's profit, or disqualify you
+completely, if we feel you've violated these rules. Obviously they are somewhat
+vague. Please come talk to us if you have any concerns. If you find a bug in the
+exchange, please tell us. If you think someone else has been deliberately
+manipulating your bot, please tell us too.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Other rules</h2>
+<div class="outline-text-2" id="text-5">
+
+<p>Your position in any given stock may never be less than -10,000 --
+your bank won't let you borrow too many shares. It also may not be
+greater than 10,000 – it would be bad if you ended up owning the
+entire company (the greater your position, the more exposed you are to
+a crash in this stock). These are enforced by the exchange: if you
+send an order which, if filled to its entire quantity at your limit
+price, would put you over your risk limits, then your order will be
+rejected.
+</p>
+<p>
+There are no direct limits on your cash balance in either direction.
+</p>
+<p>
+However, there are limits on your profit/loss. If at some point you
+get to a stage where your current score (according to the above
+methodology) is too negative, you will be determined to have "blown
+out". We'll stop that competition round there, and you will receive
+exactly the limit. The limit is -5,000,000.
+</p>
+<p>
+Don't download a bot from the internet and run that instead of writing a bot. Or
+other silly things like that. Basically, don't be a jerk.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Technical details</h2>
+<div class="outline-text-2" id="text-6">
+
+
+</div>
+
+<div id="outline-container-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> Overview</h3>
+<div class="outline-text-3" id="text-6-1">
+
+<p>You have free choice of using a line based protocol, or JSON; they will be
+available on different TCP ports (see below).
+</p>
+
+</div>
+
+<div id="outline-container-6-1-1" class="outline-4">
+<h4 id="sec-6-1-1"><span class="section-number-4">6.1.1</span> Client messages</h4>
+<div class="outline-text-4" id="text-6-1-1">
+
+
+
+
+
+<pre class="example">HELLO TEAMNAME
+ADD ID SYMBOL BUY|SELL PRICE SIZE
+CONVERT ID SYMBOL BUY|SELL SIZE
+CANCEL ID
+
+{"type": "hello", "team": "ASDF"}
+{"type": "add", "order_id": N, "symbol": "SYM", "dir": "BUY", "price": N, "size": N}
+{"type": "convert", "order_id": N, "symbol": "SYM", "dir": "BUY", "size": N}
+{"type": "cancel", "order_id": N}
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-1-2" class="outline-4">
+<h4 id="sec-6-1-2"><span class="section-number-4">6.1.2</span> Server messages</h4>
+<div class="outline-text-4" id="text-6-1-2">
+
+
+
+
+
+<pre class="example">HELLO CLOSED|OPEN CASH SYM:POSN SYM:POSN ...
+MARKET_OPEN
+MARKET_CLOSED
+ERROR MSG
+BOOK SYMBOL BUY PRICE:SIZE PRICE:SIZE ... SELL PRICE:SIZE PRICE:SIZE ...
+TRADE SYMBOL PRICE SIZE
+ACK ID
+REJECT ID MSG
+FILL ID SYMBOL DIR PRICE SIZE
+OUT ID
+
+{"type":"hello","cash":N,"symbols":[{"symbol":"SYM","position":N}, ...],"market_open":BOOL}
+{"type":"market_open","open":BOOL}
+{"type":"error","error":"MESSAGE"}
+{"type":"book","symbol":"SYM","buy":[[PRICE,SIZE], ...],"sell":[...]}
+{"type":"trade","symbol":"SYM","price":N,"size":N}
+{"type":"ack","order_id":N}
+{"type":"reject","order_id":N,"error":"REASON"}
+{"type":"fill","order_id":N,"symbol":"SYM","dir":"BUY","price":N,"size":N}
+{"type":"out","order_id":N}
+</pre>
+
+
+<p>
+Please note that the protocol is case sensitive, and you should imitate the
+above.
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-6-2" class="outline-3">
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> "Types"</h3>
+<div class="outline-text-3" id="text-6-2">
+
+<ul>
+<li>DIR: A direction is one of "BUY" or "SELL".
+</li>
+<li>TEAMNAME, SYMBOL: Team names and symbols are uppercase alpha only.
+</li>
+<li>PRICE, SIZE: Prices and sizes are positive integers strictly less
+  than 1000000.
+</li>
+<li>POSN: Positions and cash are integers (at least smaller than 2^64)
+</li>
+<li>ID: Order ids are non-negative integers (at least smaller than 2^64)
+</li>
+<li>MSG: Arbitrary strings (but they won't contain newlines or nulls or anything
+  tricksy).
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-3" class="outline-3">
+<h3 id="sec-6-3"><span class="section-number-3">6.3</span> Server ports</h3>
+<div class="outline-text-3" id="text-6-3">
+
+<p>Each exchange box runs three servers. All the ports are a base port plus the
+server index: e.g. 20000 for the first exchange's line-based client port, 25002
+for the third exchange's JSON-based client port.
+</p>
+<ul>
+<li>Base line-based client port: 20000
+</li>
+<li>Base JSON-based client port: 25000
+</li>
+</ul>
+
+
+<p>
+Exchanges also listen on a few other ports as described in "Running and testing
+your bots".
+</p>
+<ul>
+<li>Base observer port: 40000
+</li>
+<li>Base admin RPC port: 47000
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-4" class="outline-3">
+<h3 id="sec-6-4"><span class="section-number-3">6.4</span> Handshake</h3>
+<div class="outline-text-3" id="text-6-4">
+
+<p>You must issue the "hello" message first, and you must be accurate with your
+team name—don't impersonate someone else!
+</p>
+<p>
+You will immediately receive a "hello" from the exchange (or an error). The
+hello will include your current cash and position in each symbol. At the
+start these will all be zero; these numbers are only useful to you if you
+crash and reconnect (which you shouldn't be planning on doing!).
+</p>
+<p>
+The exchange will not stop you connecting twice with the same team name.
+However, this will not let you circumvent your limits, and will make it harder
+to keep track of your cash and position. The private feed (fills, outs) for an
+order is sent to the connection that initiated it only.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-5" class="outline-3">
+<h3 id="sec-6-5"><span class="section-number-3">6.5</span> Errors</h3>
+<div class="outline-text-3" id="text-6-5">
+
+<p>"Error" and "reject" messages are the server complaining about your bot.
+If the server is able to associate the error with an "add" message, then
+it will send a "reject" with the order id that failed and the error message.
+Otherwise, you will simply receive an "error".
+</p>
+<p>
+If the server detects that you have disconnected then all of your open orders
+will be canceled.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-6" class="outline-3">
+<h3 id="sec-6-6"><span class="section-number-3">6.6</span> Market hours</h3>
+<div class="outline-text-3" id="text-6-6">
+
+<p>You cannot add orders while the market is "closed". The hello message from the
+exchange indicates whether the market is currently open, and a market open /
+market closed message indicates a change. The exchange will start closed, open
+for a set period of time, and then close again shortly before shutting down.
+During "shutdown" it will simply close its connection to you.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-7" class="outline-3">
+<h3 id="sec-6-7"><span class="section-number-3">6.7</span> Available symbols</h3>
+<div class="outline-text-3" id="text-6-7">
+
+<p>The following symbols are available:
+</p>
+<ul>
+<li>FOO
+</li>
+<li>BAR
+</li>
+<li>BAZ
+</li>
+<li>QUUX
+</li>
+<li>CORGE
+</li>
+</ul>
+
+
+<p>
+The symbols FOO, BAR, BAZ, QUUX are regular equities. The symbol CORGE is an
+ETF. Each share of CORGE can be converted to/from a basket of: 0.3 FOO and 0.8
+BAR. You must convert in multiples of ten. The conversion fee is a fixed cost of
+100 per conversion (regardless of size).
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-8" class="outline-3">
+<h3 id="sec-6-8"><span class="section-number-3">6.8</span> Orders</h3>
+<div class="outline-text-3" id="text-6-8">
+
+<p>You, the client, pick unique identifiers for your orders and send it along
+with the rest of the details in the "add message". Ack, reject, fill and out
+messages will refer to the order by this identifier. It need not be globally
+unique, merely unique to your connection to the exchange. Besides these
+restrictions, you may pick them however you like.
+</p>
+<p>
+To, say, enter a buy order for FOO with price 123 and size 50, issue:
+</p>
+<pre class="example"> ADD 5 FOO BUY 123 50
+</pre>
+
+
+<p>
+You will receive either:
+</p>
+<pre class="example"> ACK 5
+</pre>
+
+
+<p>
+or:
+</p>
+<pre class="example"> REJECT 5 REASON
+</pre>
+
+
+<p>
+where "REASON" might be one of the strings mentioned above.
+</p>
+<p>
+Suppose that your order could trade immediately with a "sell 10 at $120" order
+that was resting on the market. Shortly after the ack you would receive:
+</p>
+<pre class="example"> FILL 5 FOO BUY 120 10
+</pre>
+
+
+<p>
+The fill contains a reminder of what the order's symbol and direction, the
+price that the order traded at, and the number of shares that traded.
+</p>
+<p>
+Note that your order is still on the market, but now its size is 40.
+</p>
+<p>
+When your order has been fully filled, you will also receive an "out" message.
+Continuing the above example, if a little later on, someone else submitted a
+large low sell order, you would receive
+</p>
+<pre class="example"> FILL 5 FOO BUY 123 40
+ OUT 5
+</pre>
+
+
+<p>
+Note that at roughly the same time as you receive a "fill" message, you will
+also receive a "trade" message; see below.
+</p>
+<p>
+To cancel an order, issue
+</p>
+<pre class="example"> CANCEL 5
+</pre>
+
+
+<p>
+The reply will be
+</p>
+<pre class="example"> OUT 5
+</pre>
+
+
+<p>
+Provided you have completed the handshake, "cancel" messages never fail: you
+will always receive an "out" reply, even if the server does not recognise that
+order. If a cancel and a fill race (and the cancel loses), you might receive
+two outs for the same order id. You may wish to ignore outs you don't
+recognise.
+</p>
+<p>
+Conversions to and from an ETF are done using the CONVERT message, which is
+similar to ADD but without a price:
+</p>
+<pre class="example"> CONVERT 4 CORGE BUY 200
+</pre>
+
+
+<p>
+Saying "BUY" means you receive the ETF and give out the basket. Saying "SELL"
+means you give out the ETF and receive the constituent basket of stocks and
+cash. You are not allowed to convert if it would put you over any position limit
+– in the ETF or in the stocks. The order ID for conversions shares a namespace
+with orders.
+</p>
+<p>
+The reply will be either an ACK message or a REJECT message indicating whether
+the conversion was successful or not. It is not possible for a conversion to
+partially succeed
+</p>
+<p>
+The corresponding JSON for the messages above would be:
+</p>
+<pre class="example"> {"type": "add", "order_id": 5, "symbol": "FOO", "dir": "BUY", "price": 123, "size": 50}
+ {"type": "ack", "order_id": 5}
+ {"type": "reject", "order_id": 5, "error": "REASON"}
+ {"type": "fill", "order_id": 5, "symbol": "FOO", "dir": "BUY", "price": 123, "size": 10}
+ {"type": "fill", "order_id": 5, "symbol": "FOO", "dir": "BUY", "price": 123, "size": 40}
+ {"type": "out", "order_id": 5}
+ {"type": "cancel", "order_id": 5}
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-9" class="outline-3">
+<h3 id="sec-6-9"><span class="section-number-3">6.9</span> Public feed</h3>
+<div class="outline-text-3" id="text-6-9">
+
+<p>Trade and book messages constitute the anonymised public feed.
+</p>
+<pre class="example"> TRADE FOO 123 40
+ {"type":"trade","symbol":"FOO","price":123,"size":40}
+</pre>
+
+
+<p>
+means that 40 shares of FOO have traded at price $123 between two people (or
+one person with themselves).
+</p>
+<pre class="example"> BOOK FOO BUY 125:12 124:100 100:1 SELL 127:4 128:15 140:100
+ {"type":"book","symbol":"FOO","buy":[[125,12],[124,100],[100,1]],"sell":[[127,4],[128,15],[140,100]]}
+</pre>
+
+
+<p>
+means that one or more people are willing to buy FOO for $125, and the sum of
+the sizes of those orders is 12. (Willing to buy 100 shares of FOO for $124,
+etc.) On the other side, there are people willing to sell up to 4 shares at
+$127.
+</p>
+<p>
+The book will be truncated to N price levels. It will be sorted
+most-aggressive-first (i.e. bids are high-to-low, offers are low-to-high), so
+that the best bid and offer are in the location indicated by "BEST" below:
+</p>
+<pre class="example"> BOOK FOO BUY BEST OTHERS... SELL BEST OTHERS...
+ {"type":"book","symbol":"FOO","buy":[BEST, ...],"sell":[BEST, ...]}
+</pre>
+
+
+<p>
+There are no guarantees about when you'll receive these messages in relation
+to the private ones. Notably:
+</p><ul>
+<li>when you add an order, the "book" update to include your order may arrive
+  before or after the ack (moreover, not necessarily immediately before or
+  after)
+</li>
+<li>similarly for trade &amp; fill messages
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-10" class="outline-3">
+<h3 id="sec-6-10"><span class="section-number-3">6.10</span> Running and testing your bots</h3>
+<div class="outline-text-3" id="text-6-10">
+
+<p>We will be running this competition on Amazon EC2.
+</p>
+<p>
+Each team will receive one Ubuntu Linux box in the cloud which is yours and
+yours alone, which we'll call your "bot box". You can develop there if you wish,
+or you can develop on your laptop and upload to your box. If you choose the
+latter route, be sure to check that your binary actually works in the cloud.
+</p>
+<p>
+When we create your team we will tell you the (public) IP address of your bot
+box. To get started, log in to the box by opening a terminal on your laptop and
+using ssh:
+</p>
+<pre class="example">ssh ubuntu@54.154.27.172 # Replace with your bot box's public IP
+</pre>
+
+
+<p>
+You should change the password to something more memorable at this point using
+the standard unix utility "passwd".
+</p>
+
+</div>
+
+<div id="outline-container-6-10-1" class="outline-4">
+<h4 id="sec-6-10-1"><span class="section-number-4">6.10.1</span> Testing your bot</h4>
+<div class="outline-text-4" id="text-6-10-1">
+
+<p>You also have access to a test exchange where you can test out your bot. We will
+tell you its IP and port at the same time we give you the address of your bot
+box. There will be marketplace bots running on your test exchange, too.
+</p>
+<p>
+There are three copies of the test exchange with "indexes" 0, 1, 2. In the
+same sense as the competition exchanges, the JSON client port for index 1 is
+25001; the observer port for index 0 is 40000, etc. But unlike the real
+competition, the three copies run slightly different versions of the
+marketplace. On index 0, the marketplace runs fairly slowly. On index 1, the
+marketplace runs at the true competition speed. On index 2, there is no
+marketplace – the exchange is empty, ready for you to play around with.
+</p>
+<p>
+You can see the current books on the test exchange, as well as all positions and
+the history of trades, by browsing to <a href="http://your-test-exch-box:4000n">http://your-test-exch-box:4000n</a> for n in
+0,1,2. If you click the "Omniscience" button you will see which team is which in
+there too.
+</p>
+<p>
+We will email you two different IPs for your test exchange box: the "public" one
+and the "private" one. You should use the private IP (which will begin "10.") if
+you want to connect from your bot box to your test exch box. For example, you
+can connect to your test exchange using nc:
+</p>
+<pre class="example">$ nc 10.0.104.19 20000
+HELLO FOO # Type this in
+HELLO CLOSED 0 FOO:0 CORGE:0 QUUX:0 BAR:0 BAZ:0
+BOOK BAZ BUY SELL
+BOOK BAR BUY SELL
+BOOK QUUX BUY SELL
+BOOK CORGE BUY SELL
+BOOK FOO BUY SELL
+</pre>
+
+
+<p>
+Note that in the "HELLO" response here, the market is closed. Indeed, when you
+first start up, your test exchange will be closed. To open the exchange, run
+"eth0 open-market". You need to give it the "admin RPC" port of your test
+exchange, which is 47000 + n, for n in 0,1,2. You can also run:
+</p>
+<ul>
+<li>"eth0 close-market" to close the market again (you can toggle between open and
+  closed as many times as you like)
+</li>
+<li>"eth0 reset-positions" to set all positions in all symbols to 0 for the given
+  team, and to set the amount of cash in their account to 0 too.
+</li>
+<li>"eth0 state" to get a dump of the state of the exchange. 
+</li>
+</ul>
+
+
+<p>
+All of this is intended for debugging – you are firewalled off from the admin
+RPC port range for the prod exchanges.
+</p>
+<p>
+The same symbols are available on the test exchanges as on the prod exchanges.
+However, when the exchange and marketplace start up, they pick some arbitrary
+prices for all of the symbols – you should not expect them to remain consistent
+between the test and prod exchanges, nor even between two different games on a
+prod exchange.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-10-2" class="outline-4">
+<h4 id="sec-6-10-2"><span class="section-number-4">6.10.2</span> Installing your bot</h4>
+<div class="outline-text-4" id="text-6-10-2">
+
+
+<p>
+You should install your bot binary to the path /opt/bot/go. When it's time for a
+competition round, we'll run a script which ssh's to everyones boxes and runs
+(inside bash) whatever happens to be at /opt/bot/go, as the ubuntu user, with
+ubuntu's home directory as the working directory. We will pass that program two
+command-line arguments. The first is the host of the exchange to connect. (This
+will most likely be an IP address.) The second will be an "index" – either 0, 1
+or 2. Connect to the base port for the protocol you want to connect to, plus the
+index. E.g. if you're using JSON and your second argument is 2, connect to
+port 25002.
+</p>
+<p>
+It is <b>essential</b> that you test your bot can be run before the first starting
+competition. There are lots of things to make sure of, for example:
+</p>
+<ul>
+<li>The file exists and is readable and executable by the ubuntu user.
+</li>
+<li>The executable/script does not assume that the working directory is /opt/bot
+  or similar (the wd will be /home/ubuntu).
+</li>
+<li>Your bot does not assume the exchange will start open.
+</li>
+</ul>
+
+
+<p>
+The competition runner will write the stdout and stderr of your bot to /mnt/bot
+(note that this directory is wiped on reboot). This can be useful for finding
+out why your bot didn't start. We will run some "practice competitions" prior to
+the first scoring round, which contribute zero to the final scores, so that you
+can test things out.
+</p>
+<p>
+Please make sure <b>all</b> of your bot's files, <b>including source code</b>, are stored
+in /opt/bot. We will take archives of this directory before starting each game
+in order to give us the ability to re-run games later on in case of any disputes
+or mistakes.
+</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> FAQ</h2>
+<div class="outline-text-2" id="text-7">
+
+
+</div>
+
+<div id="outline-container-7-1" class="outline-3">
+<h3 id="sec-7-1"><span class="section-number-3">7.1</span> Trading through</h3>
+<div class="outline-text-3" id="text-7-1">
+
+<p>Any given trade is always between an order that was previously on the
+book (the "resting" order), and one that comes in and never gets
+entered into the book.
+</p>
+<p>
+The price of a trade is always that of the <b>resting</b> order. For
+example, if there is a resting order to buy for 80, and someone sends
+an order to sell for 70, a trade goes up at the price of 80.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-7-2" class="outline-3">
+<h3 id="sec-7-2"><span class="section-number-3">7.2</span> My JSON messages are being ignored!</h3>
+<div class="outline-text-3" id="text-7-2">
+
+<p>You need to send a newline after each message.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-7-3" class="outline-3">
+<h3 id="sec-7-3"><span class="section-number-3">7.3</span> Can I use &lt;favourite library&gt; or &lt;favourite search engine&gt;?</h3>
+<div class="outline-text-3" id="text-7-3">
+
+<p>You are welcome (and encouraged!) to search for solutions, standard libraries
+etc. online. But please don't just download a complete bot, post online for
+solutions, get someone to write code for you, or anything like that.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-7-4" class="outline-3">
+<h3 id="sec-7-4"><span class="section-number-3">7.4</span> Will there be food?</h3>
+<div class="outline-text-3" id="text-7-4">
+
+<p>Oh, yes.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-7-5" class="outline-3">
+<h3 id="sec-7-5"><span class="section-number-3">7.5</span> How do I open the market on my test exchange?</h3>
+<div class="outline-text-3" id="text-7-5">
+
+<p>From the command line on your bot box, you can run eg.
+eth0 open-market &lt;test-exch-private-ip&gt;:47000
+</p>
+
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="postamble">
+<p class="date">Date: 2015-01-31T12:03+0000</p>
+<p class="author">Author: Ubuntu</p>
+<p class="creator"><a href="http://orgmode.org/">Org</a> version 7.9.3f with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
+<a href="http://validator.w3.org/check?uri=referer">Validate XHTML 1.0</a>
+
+</div>
+
+
+</body></html>
