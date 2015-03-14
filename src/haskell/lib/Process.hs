@@ -129,7 +129,7 @@ buy sym q p = do
     s@TraderState{..} <- get
     sendMessage $ Add (OrderId numOrders) sym Buy p q 
     let newNumOrders = numOrders+1
-    let newOrders = M.insert sym (M.singleton (OrderId numOrders) (p, q)) ourBuyOrders 
+    let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourBuyOrders 
     put s{ourBuyOrders = newOrders, numOrders = newNumOrders}
 
 sell :: Symbol -> Quantity -> Price -> Trader ()
@@ -137,7 +137,7 @@ sell sym q p = do
     s@TraderState{..} <- get
     sendMessage $ Add (OrderId numOrders) sym Sell p q 
     let newNumOrders = numOrders+1
-    let newOrders = M.insert sym (M.singleton (OrderId numOrders) (p, q)) ourSellOrders 
+    let newOrders = M.insertWith (<>) sym (M.singleton (OrderId numOrders) (p, q)) ourSellOrders 
     put s{ourSellOrders = newOrders, numOrders = newNumOrders}
 
 bFactor :: Gaussian -> Int -> Price ->  Price -> (Double, Double)
