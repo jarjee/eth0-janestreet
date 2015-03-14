@@ -86,12 +86,12 @@ data Direction = Buy
     deriving (Show, Ord, Eq)
 
 instance ToJSON Direction where
-    toJSON Buy  = String "buy"
-    toJSON Sell = String "sell"
+    toJSON Buy  = String "BUY"
+    toJSON Sell = String "SELL"
 
 instance FromJSON Direction where
-    parseJSON (String "buy")  = pure Buy
-    parseJSON (String "sell") = pure Sell
+    parseJSON (String "BUY")  = pure Buy
+    parseJSON (String "SELL") = pure Sell
     parseJSON _ = mzero
 data ClientMessage = ClientHello String
                    | Add OrderId Symbol Direction Price Quantity
@@ -154,13 +154,14 @@ data TraderState = TraderState
     { teamName      :: String
     , traderHandle  :: Handle
     , windowSize    :: Int
+    , kFactor       :: Int
     , stockEntries  :: Map Symbol Gaussian
     , inventory     :: Map Symbol Integer
     , ourSellOrders :: Map Symbol (Map OrderId (Price, Quantity))
     , ourBuyOrders  :: Map Symbol (Map OrderId (Price, Quantity))
     , marketState   :: Map Symbol (BookBuys, BookSells)
     , cash          :: Integer
-    , numMessages   :: Integer
+    , numOrders     :: Integer
     } deriving (Show)
 
 newtype Trader a = Trader {

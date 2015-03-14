@@ -33,7 +33,7 @@ initState teamName addr ix = do
     let sockAddr = SockAddrInet (fromIntegral $ 25000 + ix) hAddr
     connect sock sockAddr
     h <- socketToHandle sock ReadWriteMode
-    return $ TraderState teamName h 5 mempty mempty mempty mempty mempty 0 0
+    return $ TraderState teamName h 7 2 mempty mempty mempty mempty mempty 0 1
 
 processMessage :: ServerMessage -> Trader ()
 processMessage  ServerHello{}       = return ()
@@ -42,9 +42,10 @@ processMessage (Error str)          = liftIO $ putStrLn $ "we got an error: " <>
 processMessage (Book sym bb bs)     = do
     s@TraderState{..} <- get
     put s{marketState=M.insert sym (bb, bs) marketState}
-processMessage (Trade sym (Price p) (Quantity q)) = updateBuffer sym p q
+processMessage (Trade sym (Price p) (Quantity q)) = updateBuffer sym p q >> considerTrade
 processMessage (Ack _)              = return ()
-processMessage (Reject oid str)     = liftIO $ putStrLn $ "we got a rejection for order: " <> show oid <> ", rejection reason: " <> str
+processMessage (Reject oid str)     = liftIO $ putStrLn $ 
+    "we got a rejection for order: " <> show oid <> ", rejection reason: " <> str
 processMessage (Fill oid sym d p q) = updateFill oid sym d p q
 processMessage (Out _)              = return ()
 
@@ -52,10 +53,14 @@ updateFill :: OrderId -> Symbol -> Direction -> Price -> Quantity -> Trader ()
 updateFill oid sym Buy p q = do
     s@TraderState{..} <- get
     case M.lookup sym ourBuyOrders of
-        Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a buy fill for oid: " <> show oid <> " but we had no entry for the symbol, " <> show sym
+        Nothing -> liftIO $ hPutStrLn stderr $
+            "Warning: received a buy fill for oid: " <> show oid <>
+            " but we had no entry for the symbol, " <> show sym
         Just iMap -> do
             case M.lookup oid iMap of
-                Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a buy fill for oid: " <> show oid <> " but we had no entry for the oid. symbol: " <> show sym
+                Nothing -> liftIO $ hPutStrLn stderr $
+                    "Warning: received a buy fill for oid: " <> show oid <>
+                    " but we had no entry for the oid. symbol: " <> show sym
                 Just (p', q') -> do
                     updateInventory sym (fromIntegral q')
                     updateCash $ (-1) * (fromIntegral p') * (fromIntegral q')
@@ -64,10 +69,14 @@ updateFill oid sym Buy p q = do
 updateFill oid sym Sell p q = do
     s@TraderState{..} <- get
     case M.lookup sym ourSellOrders of
-        Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a sell fill for oid: " <> show oid <> " but we had no entry for the symbol, " <> show sym
+        Nothing -> liftIO $ hPutStrLn stderr $
+            "Warning: received a sell fill for oid: " <> show oid <>
+            " but we had no entry for the symbol, " <> show sym
         Just iMap -> do
             case M.lookup oid iMap of
-                Nothing -> liftIO $ hPutStrLn stderr $ "Warning: received a sell fill for oid: " <> show oid <> " but we had no entry for the oid. symbol: " <> show sym
+                Nothing -> liftIO $ hPutStrLn stderr $
+                    "Warning: received a sell fill for oid: " <> show oid <>
+                    " but we had no entry for the oid. symbol: " <> show sym
                 Just (p', q') -> do
                     updateInventory sym (fromIntegral $ -q')
                     updateCash $ (fromIntegral p') * (fromIntegral q')
@@ -96,12 +105,55 @@ updateBuffer sym p q = do
                        M.insert sym (joinGaussian g (tradeToGaussian p q)) stockEntries
     put s{stockEntries=newEntries}
 
+considerTrade :: Trader ()
+considerTrade = do
+    TraderState{..} <- get
+    forM_ (M.toList stockEntries) $ (\(sym, g) -> do
+        case M.lookup sym marketState of
+            Just (BookBuys (bb:bbs), BookSells (bs:bss)) -> do
+                let (bestBuy, buyQ)   = (\(BookEntry p q) -> (p, q)) bb
+                let (bestSell, sellQ) = (\(BookEntry p q) -> (p, q)) bs
+                let (bBuy, bSell) = bFactor g kFactor bestBuy bestSell
+                when (bBuy  > 0.8) $ sell sym 100 bestBuy
+                when (bSell < 0.2) $ buy  sym 100 bestSell
+            Just _ -> liftIO $ putStrLn "no buy orders lulz"
+            Nothing -> return ())
+
+buy :: Symbol -> Quantity -> Price -> Trader ()
+buy sym q p = do
+    s@TraderState{..} <- get
+    sendMessage $ Add (OrderId numOrders) sym Buy p q 
+    let newNumOrders = numOrders+1
+    let newOrders = M.insert sym (M.singleton (OrderId numOrders) (p, q)) ourBuyOrders 
+    put s{ourBuyOrders = newOrders, numOrders = newNumOrders}
+
+sell :: Symbol -> Quantity -> Price -> Trader ()
+sell sym q p = do
+    s@TraderState{..} <- get
+    sendMessage $ Add (OrderId numOrders) sym Sell p q 
+    let newNumOrders = numOrders+1
+    let newOrders = M.insert sym (M.singleton (OrderId numOrders) (p, q)) ourSellOrders 
+    put s{ourSellOrders = newOrders, numOrders = newNumOrders}
+
+bFactor :: Gaussian -> Int -> Price ->  Price -> (Double, Double)
+bFactor g k (Price bestBuy) (Price bestSell) =
+    let [b1, b2] = map (\p -> (fromIntegral p - lower g k) / (upper g k - lower g k)) [bestBuy, bestSell]
+    in (b1, b2)
+upper :: Gaussian -> Int -> Double
+upper g@(Gaussian _ _ m _) k = m + sd g * fromIntegral k
+
+center :: Gaussian -> Int -> Double
+center g@(Gaussian _ _ m _) k = m
+
+lower :: Gaussian -> Int -> Double
+lower g@(Gaussian _ _ m _ ) k = m - sd g * fromIntegral k
+
+sd :: Gaussian -> Double
+sd (Gaussian _ n _ v) = sqrt (v / fromIntegral n)
+
 rawProcessAll :: Trader ()
 rawProcessAll = forever $ do
     recvMessage >>= processMessage
-    s@TraderState{..} <- get
-    liftIO $ print stockEntries
-    put s{numMessages=numMessages+1}
 
 tradeToGaussian :: Integer -> Integer -> Gaussian
 tradeToGaussian p q = Gaussian (Sq.singleton (p,q)) q (fromIntegral p) 0
