@@ -1,16 +1,29 @@
 import json
 
+
+from tornado.concurrent import Future
+from tornado.ioloop import IOLoop
+from tornado.iostream import IOStream
+from tornado import gen
+from tornado.tcpclient import TCPClient
+import socket
+
 __hasConnected = False;
 __team_name = "CARBONFOURTEEN"
 __exchange_ip = "10.0.131.184"
+__json_port = 25000
+
+
+__tcp_client = TCPClient() 
+__tcp_stream = yield __tcp_client.connect(__exchange_ip, __json_port)
+__io_loop = tornado.ioloop.IOLoop.current()
 
 def connectionCheck():
-    if (! __hasConnected):
+    if (not __hasConnected):
         print("Have not connected to the server yet!")
         exit(1)
 
 def connect():
-    #Send {"type": "hello", "team": "CARBONFOURTEEN"}
     __hasConnected = True;
     pass
 
